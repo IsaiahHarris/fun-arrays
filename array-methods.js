@@ -8,11 +8,13 @@ var dataset = require('./dataset.json');
   assign the resulting new array to `hundredThousandairs`
 */
 var hundredThousandairs = null;
+
 function ovaHunned(element) {
   if (element.amount > 100000) {
     return element;
   }
 }
+
 hundredThousandairs = dataset.bankBalances.filter(ovaHunned)
 
 /*
@@ -33,6 +35,7 @@ hundredThousandairs = dataset.bankBalances.filter(ovaHunned)
   assign the resulting new array to `datasetWithRoundedDollar`
 */
 var datasetWithRoundedDollar = null;
+
 function addRounded(element) {
   let newDataset = {};
   newDataset.state = element.state;
@@ -80,8 +83,8 @@ datasetWithRoundedDime = dataset.bankBalances.map(roundToDime);
 var sumOfBankBalances = null;
 
 let sum = 0
-function findSum(previousValue, currentValue) {
 
+function findSum(previousValue, currentValue) {
   let sum = previousValue + parseFloat(currentValue.amount)
   return Math.round(sum * 100) / 100;
 }
@@ -108,11 +111,14 @@ function findStates(element) {
 
 
 let states = dataset.bankBalances.filter(findStates);
+
 let added = 0
+
 function addInterest(element, current) {
   added += parseFloat(current.amount) * 0.189
   return parseFloat(Math.round(added * 100) / 100) + 0.02;
 }
+
 sumOfInterests = states.reduce(addInterest, 0)
 
 
@@ -147,6 +153,7 @@ function groupStates(element) {
   stateSums[state] = Math.round(stateSums[state] * 100) / 100
   return stateSums;
 }
+
 dataset.bankBalances.forEach(groupStates);
 /*
   for all states *NOT* in the following states:
@@ -171,20 +178,19 @@ let statesArr = Object.keys(stateSums);
 let stateSubsets = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
 let totalInterest = 0;
 
-function filterStates (element) {
+function filterStates(element) {
   return !stateSubsets.includes(element);
 };
 
-
-function calculateInterest (element) {
+function calculateInterest(element) {
   return stateSums[element] * 0.189;
 }
 
-function over50k (element) {
+function over50k(element) {
   return element > 50000;
 }
 
-function sumInterests(prev, curr){
+function sumInterests(prev, curr) {
   totalInterest = prev + parseFloat(curr);
   return Math.round(totalInterest * 100) / 100;
 }
@@ -199,12 +205,13 @@ sumOfHighInterests = statesArr.filter(filterStates).map(calculateInterest).filte
   in the state is less than 1,000,000
  */
 var lowerSumStates = [];
+
 let statesSumArr = Object.entries(stateSums);
 
-function getUnderMil (element){
-  return element [1]<1000000;
+function getUnderMil(element) {
+  return element[1] < 1000000;
 }
-function getState(element){
+function getState(element) {
   return element[0];
 }
 
@@ -214,15 +221,19 @@ lowerSumStates = statesSumArr.filter(getUnderMil).map(getState);
   `higherStateSums` should be the sum of all states with totals greater than 1,000,000
  */
 var higherStateSums = null;
+
 let stateSumArr = Object.entries(stateSums);
 let sumOfAll = 0;
-function getOverMil(element){
-  return element[1]>1000000;
+
+function getOverMil(element) {
+  return element[1] > 1000000;
 }
-function addUm(prev, curr){
+
+function addUm(prev, curr) {
   sumOfAll = prev + parseFloat(curr[1]);
   return parseFloat(sumOfAll)
 }
+
 higherStateSums = stateSumArr.filter(getOverMil).reduce(addUm, 0)
 
 /*
@@ -241,13 +252,17 @@ higherStateSums = stateSumArr.filter(getOverMil).reduce(addUm, 0)
   otherwise set it to `false`
  */
 var areStatesInHigherStateSum = null;
-var kksjfhk =  ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
-function filterSta (element) {
+
+var kksjfhk = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
+
+function filterSta(element) {
   return kksjfhk.includes(element[0]);
 };
-function checkIfgreater(element){
-return element[1] > 2550000
+
+function checkIfgreater(element) {
+  return element[1] > 2550000
 }
+
 areStatesInHigherStateSum = statesSumArr.filter(filterSta).every(checkIfgreater);
 
 /*
@@ -268,11 +283,12 @@ var anyStatesInHigherStateSum = null;
 
 var killerio = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
 
-function filterStateses(element){
+function filterStateses(element) {
   return killerio.includes(element[0]);
 }
-function checkIfAny(element){
-  return element[1]> 2550000;
+
+function checkIfAny(element) {
+  return element[1] > 2550000;
 }
 
 anyStatesInHigherStateSum = statesSumArr.filter(filterStateses).some(checkIfAny);
