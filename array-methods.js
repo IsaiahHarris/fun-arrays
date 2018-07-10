@@ -135,19 +135,19 @@ sumOfInterests = states.reduce(addInterest, 0)
  */
 var stateSums = {};
 
-  function groupStates (element){
-    let balance = parseFloat(element.amount);
-    let state = element.state;
-  
-    if(!stateSums[state]){
-      stateSums[state] = 0.0
-    }
-  
-    stateSums[state]+= balance;
-    stateSums[state] = Math.round(stateSums[state] * 100)/ 100
-    return stateSums;
+function groupStates(element) {
+  let balance = parseFloat(element.amount);
+  let state = element.state;
+
+  if (!stateSums[state]) {
+    stateSums[state] = 0.0
   }
-  dataset.bankBalances.forEach(groupStates);
+
+  stateSums[state] += balance;
+  stateSums[state] = Math.round(stateSums[state] * 100) / 100
+  return stateSums;
+}
+dataset.bankBalances.forEach(groupStates);
 /*
   for all states *NOT* in the following states:
     Wisconsin
@@ -167,18 +167,63 @@ var stateSums = {};
  */
 var sumOfHighInterests = null;
 
+let statesArr = Object.keys(stateSums);
+let stateSubsets = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
+let totalInterest = 0;
+
+function filterStates (element) {
+  return !stateSubsets.includes(element);
+};
+
+
+function calculateInterest (element) {
+  return stateSums[element] * 0.189;
+}
+
+function over50k (element) {
+  return element > 50000;
+}
+
+function sumInterests(prev, curr){
+  totalInterest = prev + parseFloat(curr);
+  return Math.round(totalInterest * 100) / 100;
+}
+
+sumOfHighInterests = statesArr.filter(filterStates).map(calculateInterest).filter(over50k).reduce(sumInterests, 0);
+
+
+
 /*
   set `lowerSumStates` to be an array of two letter state
   abbreviations of each state where the sum of amounts
   in the state is less than 1,000,000
  */
-var lowerSumStates = null;
+var lowerSumStates = [];
+let statesSumArr = Object.entries(stateSums);
 
+function getUnderMil (element){
+  return element [1]<1000000;
+}
+function getState(element){
+  return element[0];
+}
+
+lowerSumStates = statesSumArr.filter(getUnderMil).map(getState);
 /*
   aggregate the sum of each state into one hash table
   `higherStateSums` should be the sum of all states with totals greater than 1,000,000
  */
 var higherStateSums = null;
+let stateSumArr = Object.entries(stateSums);
+let sumOfAll = 0;
+function getOverMil(element){
+  return element[1]>1000000;
+}
+function addUm(prev, curr){
+  sumOfAll = prev + parseFloat(curr[1]);
+  return parseFloat(sumOfAll)
+}
+higherStateSums = stateSumArr.filter(getOverMil).reduce(addUm, 0)
 
 /*
   from each of the following states:
@@ -196,6 +241,14 @@ var higherStateSums = null;
   otherwise set it to `false`
  */
 var areStatesInHigherStateSum = null;
+var kksjfhk =  ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
+function filterSta (element) {
+  return kksjfhk.includes(element[0]);
+};
+function checkIfgreater(element){
+return element[1] > 2550000
+}
+areStatesInHigherStateSum = statesSumArr.filter(filterSta).every(checkIfgreater);
 
 /*
   Stretch Goal && Final Boss
@@ -213,7 +266,16 @@ var areStatesInHigherStateSum = null;
  */
 var anyStatesInHigherStateSum = null;
 
+var killerio = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
 
+function filterStateses(element){
+  return killerio.includes(element[0]);
+}
+function checkIfAny(element){
+  return element[1]> 2550000;
+}
+
+anyStatesInHigherStateSum = statesSumArr.filter(filterStateses).some(checkIfAny);
 module.exports = {
   hundredThousandairs: hundredThousandairs,
   datasetWithRoundedDollar: datasetWithRoundedDollar,
