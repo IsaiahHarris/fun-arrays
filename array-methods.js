@@ -1,3 +1,5 @@
+'use strict';
+
 var dataset = require('./dataset.json');
 
 /*
@@ -6,6 +8,12 @@ var dataset = require('./dataset.json');
   assign the resulting new array to `hundredThousandairs`
 */
 var hundredThousandairs = null;
+function ovaHunned(element) {
+  if (element.amount > 100000) {
+    return element;
+  }
+}
+hundredThousandairs = dataset.bankBalances.filter(ovaHunned)
 
 /*
   DO NOT MUTATE DATA.
@@ -25,7 +33,15 @@ var hundredThousandairs = null;
   assign the resulting new array to `datasetWithRoundedDollar`
 */
 var datasetWithRoundedDollar = null;
+function addRounded(element) {
+  let newDataset = {};
+  newDataset.state = element.state;
+  newDataset.amount = element.amount;
+  newDataset.rounded = Math.round(element.amount);
+  return newDataset
+}
 
+datasetWithRoundedDollar = dataset.bankBalances.map(addRounded);
 /*
   DO NOT MUTATE DATA.
 
@@ -51,9 +67,26 @@ var datasetWithRoundedDollar = null;
 */
 var datasetWithRoundedDime = null;
 
+function roundToDime(element) {
+  let newDataset = {};
+  newDataset.state = element.state;
+  newDataset.amount = element.amount;
+  newDataset.roundedDime = Math.round(element.amount * 10) / 10;
+  return newDataset
+}
+
+datasetWithRoundedDime = dataset.bankBalances.map(roundToDime);
 // set sumOfBankBalances to be the sum of all value held at `amount` for each bank object
 var sumOfBankBalances = null;
 
+let sum = 0
+function findSum(previousValue, currentValue) {
+
+  let sum = previousValue + parseFloat(currentValue.amount)
+  return Math.round(sum * 100) / 100;
+}
+
+sumOfBankBalances = dataset.bankBalances.reduce(findSum, 0);
 /*
   from each of the following states:
     Wisconsin
@@ -66,6 +99,23 @@ var sumOfBankBalances = null;
   and then sum it all up into one value saved to `sumOfInterests`
  */
 var sumOfInterests = null;
+
+function findStates(element) {
+  if (element.state === 'WI' || element.state === 'IL' || element.state === 'OH' || element.state === 'GA' || element.state === 'WY' || element.state === 'DE') {
+    return element;
+  }
+}
+
+
+let states = dataset.bankBalances.filter(findStates);
+let added = 0
+function addInterest(element, current) {
+  added += parseFloat(current.amount) * 0.189
+  return parseFloat(Math.round(added * 100) / 100) + 0.02;
+}
+sumOfInterests = states.reduce(addInterest, 0)
+
+
 
 /*
   aggregate the sum of bankBalance amounts
@@ -83,8 +133,21 @@ var sumOfInterests = null;
     round this number to the nearest 10th of a cent before moving on.
   )
  */
-var stateSums = null;
+var stateSums = {};
 
+  function groupStates (element){
+    let balance = parseFloat(element.amount);
+    let state = element.state;
+  
+    if(!stateSums[state]){
+      stateSums[state] = 0.0
+    }
+  
+    stateSums[state]+= balance;
+    stateSums[state] = Math.round(stateSums[state] * 100)/ 100
+    return stateSums;
+  }
+  dataset.bankBalances.forEach(groupStates);
 /*
   for all states *NOT* in the following states:
     Wisconsin
@@ -152,15 +215,15 @@ var anyStatesInHigherStateSum = null;
 
 
 module.exports = {
-  hundredThousandairs : hundredThousandairs,
-  datasetWithRoundedDollar : datasetWithRoundedDollar,
-  datasetWithRoundedDime : datasetWithRoundedDime,
-  sumOfBankBalances : sumOfBankBalances,
-  sumOfInterests : sumOfInterests,
-  sumOfHighInterests : sumOfHighInterests,
-  stateSums : stateSums,
-  lowerSumStates : lowerSumStates,
-  higherStateSums : higherStateSums,
-  areStatesInHigherStateSum : areStatesInHigherStateSum,
-  anyStatesInHigherStateSum : anyStatesInHigherStateSum
+  hundredThousandairs: hundredThousandairs,
+  datasetWithRoundedDollar: datasetWithRoundedDollar,
+  datasetWithRoundedDime: datasetWithRoundedDime,
+  sumOfBankBalances: sumOfBankBalances,
+  sumOfInterests: sumOfInterests,
+  sumOfHighInterests: sumOfHighInterests,
+  stateSums: stateSums,
+  lowerSumStates: lowerSumStates,
+  higherStateSums: higherStateSums,
+  areStatesInHigherStateSum: areStatesInHigherStateSum,
+  anyStatesInHigherStateSum: anyStatesInHigherStateSum
 };
