@@ -2,6 +2,18 @@
 
 var dataset = require('./dataset.json');
 
+const selectedStates = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
+
+function aggregateAmountsOfAllStates(prev, curr) {
+  if (!prev.hasOwnProperty(curr.state)) {
+    prev[curr.state] = Math.round(100 * Number(curr.amount)) / 100;
+    return prev;
+  } else {
+    prev[curr.state] += Math.round(100 * Number(curr.amount)) / 100;
+    prev[curr.state] = Math.round(prev[curr.state] * 100) / 100;
+    return prev;
+  }
+}
 /*
   create an array with accounts from bankBalances that are
   greater than 100000
@@ -9,13 +21,11 @@ var dataset = require('./dataset.json');
 */
 var hundredThousandairs = null;
 
-function ovaHunned(element) {
+hundredThousandairs = dataset.bankBalances.filter(function (element) {
   if (element.amount > 100000) {
     return element;
   }
-}
-
-hundredThousandairs = dataset.bankBalances.filter(ovaHunned)
+})
 
 /*
   DO NOT MUTATE DATA.
@@ -36,15 +46,13 @@ hundredThousandairs = dataset.bankBalances.filter(ovaHunned)
 */
 var datasetWithRoundedDollar = null;
 
-function addRounded(element) {
+datasetWithRoundedDollar = dataset.bankBalances.map(function(element) {
   let newDataset = {};
   newDataset.state = element.state;
   newDataset.amount = element.amount;
   newDataset.rounded = Math.round(element.amount);
   return newDataset
-}
-
-datasetWithRoundedDollar = dataset.bankBalances.map(addRounded);
+});
 /*
   DO NOT MUTATE DATA.
 
@@ -70,26 +78,22 @@ datasetWithRoundedDollar = dataset.bankBalances.map(addRounded);
 */
 var datasetWithRoundedDime = null;
 
-function roundToDime(element) {
+datasetWithRoundedDime = dataset.bankBalances.map(function (element) {
   let newDataset = {};
   newDataset.state = element.state;
   newDataset.amount = element.amount;
   newDataset.roundedDime = Math.round(element.amount * 10) / 10;
   return newDataset
-}
-
-datasetWithRoundedDime = dataset.bankBalances.map(roundToDime);
+});
 // set sumOfBankBalances to be the sum of all value held at `amount` for each bank object
 var sumOfBankBalances = null;
 
 let sum = 0
 
-function findSum(previousValue, currentValue) {
+sumOfBankBalances = dataset.bankBalances.reduce(function (previousValue, currentValue) {
   let sum = previousValue + parseFloat(currentValue.amount)
   return Math.round(sum * 100) / 100;
-}
-
-sumOfBankBalances = dataset.bankBalances.reduce(findSum, 0);
+}, 0);
 /*
   from each of the following states:
     Wisconsin
@@ -103,25 +107,18 @@ sumOfBankBalances = dataset.bankBalances.reduce(findSum, 0);
  */
 var sumOfInterests = null;
 
-function findStates(element) {
-  if (element.state === 'WI' || element.state === 'IL' || element.state === 'OH' || element.state === 'GA' || element.state === 'WY' || element.state === 'DE') {
+let states = dataset.bankBalances.filter(function (element) {
+  if (selectedStates.includes(element.state) ) {
     return element;
   }
-}
-
-
-let states = dataset.bankBalances.filter(findStates);
+});
 
 let added = 0
 
-function addInterest(element, current) {
+sumOfInterests = states.reduce(function(element, current) {
   added += parseFloat(current.amount) * 0.189
   return parseFloat(Math.round(added * 100) / 100) + 0.02;
-}
-
-sumOfInterests = states.reduce(addInterest, 0)
-
-
+}, 0)
 
 /*
   aggregate the sum of bankBalance amounts
@@ -141,20 +138,11 @@ sumOfInterests = states.reduce(addInterest, 0)
  */
 var stateSums = {};
 
-function groupStates(element) {
-  let balance = parseFloat(element.amount);
-  let state = element.state;
-
-  if (!stateSums[state]) {
-    stateSums[state] = 0.0
-  }
-
-  stateSums[state] += balance;
-  stateSums[state] = Math.round(stateSums[state] * 100) / 100
-  return stateSums;
+function setStateSums() {
+  return dataset.bankBalances.reduce(aggregateAmountsOfAllStates, {});
 }
 
-dataset.bankBalances.forEach(groupStates);
+stateSums = setStateSums();
 /*
   for all states *NOT* in the following states:
     Wisconsin
@@ -175,11 +163,10 @@ dataset.bankBalances.forEach(groupStates);
 var sumOfHighInterests = null;
 
 let statesArr = Object.keys(stateSums);
-let stateSubsets = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
 let totalInterest = 0;
 
 function filterStates(element) {
-  return !stateSubsets.includes(element);
+  return !selectedStates.includes(element);
 };
 
 function calculateInterest(element) {
@@ -253,10 +240,8 @@ higherStateSums = stateSumArr.filter(getOverMil).reduce(addUm, 0)
  */
 var areStatesInHigherStateSum = null;
 
-var kksjfhk = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
-
 function filterSta(element) {
-  return kksjfhk.includes(element[0]);
+  return selectedStates.includes(element[0]);
 };
 
 function checkIfgreater(element) {
@@ -281,10 +266,8 @@ areStatesInHigherStateSum = statesSumArr.filter(filterSta).every(checkIfgreater)
  */
 var anyStatesInHigherStateSum = null;
 
-var killerio = ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'];
-
 function filterStateses(element) {
-  return killerio.includes(element[0]);
+  return selectedStates.includes(element[0]);
 }
 
 function checkIfAny(element) {
